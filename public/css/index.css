@@ -1,0 +1,5 @@
+table.users-table, table.ntable { border: 1px #ccc solid; border-collapse:collapse; padding: 5px;}
+table.users-table th, table.users-table td, table.ntable th, table.ntable td  { border: 1px #ccc solid; border-collapse:collapse; padding: 5px; font-weight:normal;}
+table.users-table th, table.ntable th { text-align:center }
+table.users-table td { text-align:right }
+table.users-table thead tr {background-color:#E0E0E0;}

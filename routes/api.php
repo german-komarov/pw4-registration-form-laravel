@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Models\Region;
-use App\Models\Gender;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -22,6 +21,14 @@ Route::get('/regions', function () {
     return Region::all();
 });
 
+Route::post('/login', [AuthController::class, 'login']);
 
-Route::post('/users', [UserController::class, 'create']);
+Route::group(['middleware'=>['auth:sanctum']],function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/users', [UserController::class, 'readAll']);
+    Route::post('/users', [UserController::class, 'create']);
+    Route::put('/users/{id}', [UserController::class, 'update']);
+    Route::delete('/users/{id}', [UserController::class, 'delete']);
+});
+
 
