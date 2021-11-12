@@ -47,19 +47,23 @@ class UserController extends Controller
             DB::rollBack();
             return response(['message'=>'Something went wrong during creating'], 500);
         }
-
+        $user->load('region');
         return response(['createdUser'=>$user], 201);
     }
 
 
 
     function update(Request $request, int $id) {
+
+        if(User::where('email','superuser@example.com')->first()->id===$id && auth()->user()->id!==$id) {
+            return response(['message'=>'Only superuser can change itself'], 403);
+        }
+
         $fields = $request->validate([
             'first_name'=>'min: 3 | max: 50',
             'last_name'=>' min:3 | max: 50',
-            'email'=>'unique:users,email',
             'phone'=>'unique:users,phone',
-            'password'=>'min: 5 | max: 255',
+            'password'=>'confirmed | min: 5 | max: 255',
             'region_id'=>'exists:regions,id',
             'address'=>'max: 2000',
             'gender'=>''
@@ -92,9 +96,15 @@ class UserController extends Controller
 
 
     function delete(int $id) {
+
         $user = User::where('id', $id)->first();
 
+
+
         if($user) {
+            if($user->email==='superuser@example.com') {
+                return response(['message'=>'It is forbidden to delete superuser'], 403);
+            }
             DB::beginTransaction();
             try {
                 $user->delete();

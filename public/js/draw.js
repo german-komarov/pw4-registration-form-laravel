@@ -12,6 +12,7 @@ function drawLogin() {
 }
 
 function drawRegistration() {
+    drawAfterSubmitText('');
     console.log(isAuthenticated)
     if(!isAuthenticated) {
         drawLogin();
@@ -28,30 +29,45 @@ function drawRegistration() {
         '            <li id="logoutLi" class="nav-item">\n' +
         '                <a class="nav-link" style="cursor: pointer" onclick="logout()">Logout</a>\n' +
         '            </li>')
-    $.ajax({
-        url: '/api/regions',
-        success: function(data) {
-            drawMain(registrationTemplate);
-            for(let i=0;i<data.length;i++) {
-                $('#region').append(
-                    `
-                        <option value="${data[i].id}">${data[i].name}</option>
-                    `
-                );
-            }
-        },
-        error: function (xhr) {
-            switch (xhr.status) {
-                case 401: {
-                    logout()
+
+
+    drawMain(registrationTemplate);
+    if (_regions==null) {
+        $.ajax({
+            url: '/api/regions',
+            success: function(data) {
+                setRegions(data.regions)
+                drawRegions()
+            },
+            error: function (xhr) {
+                switch (xhr.status) {
+                    case 401: {
+                        logout()
+                    }
                 }
             }
-        }
-    })
+        })
+    } else {
+        drawRegions()
+    }
+
+    $('#registrationForm').append('<button type="button" class="btn btn-primary" onclick="submitRegistration()">Register</button>');
+
 }
 
 
+function drawRegions() {
+    for(let i=0;i<_regions.length;i++) {
+        $('#region').append(
+            `
+                        <option id="${i+1}" value="${_regions[i].id}">${_regions[i].name}</option>
+                    `
+        );
+    }
+}
+
 function drawUsersTable() {
+    drawAfterSubmitText('');
     $('#navbarUl').html('<li id="usersLi" class="nav-item active">\n' +
         '                <a class="nav-link" style="cursor: pointer" onclick="drawUsersTable()">Users</a>\n' +
         '            </li>\n' +
@@ -82,22 +98,19 @@ function drawUsersTable() {
         '                </tbody>\n' +
         '            </table></div></div></div>')
 
-    if(_users===null) {
-        $.ajax({
-            url: 'http://localhost:8000/api/users',
-            method: 'GET',
-            headers: {'Authorization': ('Bearer ' + storage.getItem('usersTrackerAuthToken'))},
-            success: function (data) {
-                let users = data.users;
-                setUsers(users);
-                drawTableBody();
-                $('.users-table').DataTable();
-            }
-        });
-    } else {
-        drawTableBody();
-        $('.users-table').DataTable();
-    }
+
+    $.ajax({
+        url: '/api/users',
+        method: 'GET',
+        headers: {'Authorization': ('Bearer ' + storage.getItem('usersTrackerAuthToken'))},
+        success: function (data) {
+            let users = data.users;
+            setUsers(users);
+            drawTableBody();
+            $('.users-table').DataTable();
+        }
+    });
+
 
 
 
@@ -118,12 +131,12 @@ function drawUsersTable() {
                 <td>${user.gender}</td>
                 <td>${createdAt.toLocaleDateString('en-US')}  ${createdAt.toTimeString().split('GMT')[0]}</td>
                 <td>${updatedAt.toLocaleDateString('en-US')}  ${updatedAt.toTimeString().split('GMT')[0]}</td>
+                <td><span><button class="btn btn-primary" onclick="editUser(${user.id}, ${i})">Edit</button><button class="btn btn-danger" onclick="deleteUser(${user.id}, ${i})">Delete</button></span></td>
                 </tr>`);
         }
     }
 
 }
-
 
 
 

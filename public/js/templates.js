@@ -1,4 +1,4 @@
-let loginTemplate = ' <div class="col-sm-8">\n' +
+let loginTemplate = ' <div class="col-sm-12">\n' +
     '            <form id="loginForm">\n' +
     '                <div class="form-group">\n' +
     '                    <label for="email">Email address</label>\n' +
@@ -11,10 +11,9 @@ let loginTemplate = ' <div class="col-sm-8">\n' +
     '                <br>\n' +
     '                <button type="button" class="btn btn-primary" onclick="submitLogin()">Login</button>\n' +
     '            </form>\n' +
-    '        </div>\n' +
-    '        <div id="afterSubmitText" class="col-sm-4"></div>';
+    '        </div>';
 
-let registrationTemplate = '<div class="col-sm-8">\n' +
+let registrationTemplate = '<div class="col-sm-12">\n' +
     '            <form id="registrationForm">\n' +
     '                <div class="form-group">\n' +
     '                    <label for="first_name">First Name</label>\n' +
@@ -63,10 +62,8 @@ let registrationTemplate = '<div class="col-sm-8">\n' +
     '                </div>\n' +
     '\n' +
     '                <br>\n' +
-    '                <button type="button" class="btn btn-primary" onclick="submitRegistration()">Register</button>\n' +
     '            </form>\n' +
     '        </div>\n' +
-    '        <div id="afterSubmitText" class="col-sm-4"></div>\n' +
     '    </div>'
 
 

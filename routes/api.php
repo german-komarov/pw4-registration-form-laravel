@@ -18,7 +18,7 @@ use App\Models\Region;
 
 
 Route::get('/regions', function () {
-    return Region::all();
+    return response(['regions'=>Region::all()]);
 });
 
 Route::post('/login', [AuthController::class, 'login']);

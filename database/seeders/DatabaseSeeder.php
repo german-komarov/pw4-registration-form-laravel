@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
             'last_name'=>'Doe',
             'email'=>'superuser@example.com',
             'phone'=>'123456789',
-            'password'=>'superpassword',
+            'password'=>bcrypt('superpassword'),
             'region_id'=>8,
             'address'=>'Some super address',
             'gender'=>'MALE'
