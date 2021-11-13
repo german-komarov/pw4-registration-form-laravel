@@ -108,6 +108,7 @@ function editUser(userId, userIndex) {
     $('#last_name').attr('value', user.last_name)
     $('#email').attr('readonly', true)
     $('#email').attr('value', user.email)
+    $('#phone').attr('readonly', true)
     $('#phone').attr('value', user.phone)
     $('#address').text(user.address)
     $('#gender').attr('value', user.gender)
@@ -138,13 +139,34 @@ function editUser(userId, userIndex) {
         $('#'+user.region.id).attr('selected', true)
     }
 
-    $('#registrationForm').append('<button type="button" class="btn btn-primary" onclick="submitEdit()">Register</button>');
+    $('#registrationForm').append(`<button type="button" class="btn btn-primary" onclick="submitEdit(${userId}, ${userIndex})">Register</button>`);
 }
 
 
 
-function submitEdit() {
-    let data = new FormData()
+function submitEdit(userId, userIndex) {
+    let data = new FormData(document.getElementById('registrationForm'))
+    console.log(data)
+    $.ajax({
+        url: '/api/users/'+userId,
+        headers: {'Authorization':('Bearer ' + storage.getItem('usersTrackerAuthToken'))},
+        method: 'POST',
+        data: data,
+        success: function (res) {
+            drawUsersTable();
+        },
+        error: function (xhr,textStatus,errorThrown) {
+            console.log(xhr)
+            let errors = xhr.responseJSON.errors;
+            let html = '';
+            for (let key in errors) {
+                html += `<p class="text-danger bg-light">${errors[key][0]}</p>`
+            }
+            drawAfterSubmitText(html);
+        },
+        processData: false,
+        contentType: false,
+    })
 }
 
 
@@ -153,3 +175,6 @@ function logout() {
     drawLogin();
     storage.removeItem('usersTrackerAuthToken')
 }
+
+
+

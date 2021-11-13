@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Attachment;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Region;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -62,8 +64,7 @@ class UserController extends Controller
         $fields = $request->validate([
             'first_name'=>'min: 3 | max: 50',
             'last_name'=>' min:3 | max: 50',
-            'phone'=>'unique:users,phone',
-            'password'=>'confirmed | min: 5 | max: 255',
+            'phone'=>'string',
             'region_id'=>'exists:regions,id',
             'address'=>'max: 2000',
             'gender'=>''
@@ -81,7 +82,11 @@ class UserController extends Controller
             return response(['message'=>'There is no user with such id'], 400);
         }
 
-        $user = $user->fill($fields);
+        $user->first_name = $fields['first_name'];
+        $user->last_name = $fields['last_name'];
+        $user->address = $fields['address'];
+        $user->gender = $fields['gender'];
+        $user->region_id = $fields['region_id'];
 
         DB::beginTransaction();
         try {
@@ -89,10 +94,38 @@ class UserController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return response(['message'=>'Something went wrong during updating'], 500);
+            return response(['message'=>$e->getMessage()], 500);
         }
+
+        $user = User::where('id', $id)->first();
+        $user->load('region');
         return response(['updatedUser'=>$user]);
     }
+
+
+    function uploadAvatar(Request $request, int $id) {
+        $request->validate([
+            'avatar' => 'file|max:10000',
+        ]);
+
+
+        if ($request->hasFile('avatar')) {
+            $root_path = 'public/avatars/' . $id;
+            $file = $request->file('avatar');
+            $original_name = $file->getClientOriginalName();
+            $type = $file->getMimeType();
+            $attachment = Attachment::create([
+                'user_id' => $id,
+                'filename' => $original_name,
+                'type' => $type,
+                'path' => $root_path . "/" . $original_name
+            ]);
+            $file->storeAs($root_path, $original_name);
+        }
+
+        return response(['message'=>'Avatar were uploaded successfully'], 201);
+    }
+
 
 
     function delete(int $id) {
